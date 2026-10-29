@@ -61,3 +61,7 @@ Label utama memakai posisi tetap, terpisah dari komponen bergerak. Penjelasan me
 ### Animasi tekanan ke semua arah
 
 Kartu kedua menampilkan piston mendekati air, kenaikan tambahan tekanan bersamaan, lalu tekanan ditahan. Empat angka di luar gambar selalu sama. Tombol Putar, Jeda/Lanjutkan, dan Ulangi mengontrol animasi 6,5 detik; slider mengatur target 0–100 kPa dan mengembalikan animasi ke awal. Gerak piston sebelum kontak bersifat ilustratif, tanpa memodelkan kompresi cairan. Preferensi reduced motion mengubah putar menjadi langkah manual.
+
+## Pengertian untuk pengajaran
+
+Setiap tab memiliki bagian “Pahami dulu istilahnya” yang terlihat tanpa membuka menu: definisi, contoh, dan satuan. Tab gauge/absolut menjelaskan atmosfer, gauge, absolut, vakum parsial dan sempurna, serta perbedaan titik nol. Penjelasan “Mengapa hasilnya…” mengikuti nilai slider dan membedakan gauge positif, nol, dan negatif. Tab lain menjelaskan gaya, luas piston, Pascal, bejana berhubungan, kompresibilitas, volume, kedalaman dan massa jenis.

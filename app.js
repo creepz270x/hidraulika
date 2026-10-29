@@ -4,7 +4,7 @@ const tabs = [
  {name:'Bentuk & aliran',title:'Bejana berhubungan & aliran',desc:'Bentuk wadah berbeda, tetapi permukaan cairan setimbang pada ketinggian yang sama.'},
  {name:'Kompresibilitas',title:'Cairan dibandingkan gas',desc:'Berikan tekanan yang sama dan amati perubahan volume keduanya.'},
  {name:'Hidrostatis',title:'Tekanan di dalam cairan',desc:'Jelajahi pengaruh kedalaman, massa jenis, dan tekanan di permukaan.'},
- {name:'Gauge & absolut',title:'Dua acuan pengukuran tekanan',desc:'Gauge adalah angka pada alat ukur. Absolut adalah tekanan total, termasuk udara luar.'}
+ {name:'Gauge & absolut',title:'Dua acuan pengukuran tekanan',desc:'Gauge membandingkan tekanan dengan udara luar. Absolut memakai vakum sempurna sebagai titik nol.'}
 ];
 const defaults = [{f:98.1,a:1,b:10,s:10},{h1:3,h2:1},{p:6900},{rho:1000,h:1,surface:0},{gauge:100,atm:101.325}];
 let active=0, state={...defaults[0]}, progress=0, running=false, frame=0, last=0;
@@ -13,6 +13,39 @@ const fmt=(n,d=2)=>Number(n).toLocaleString('id-ID',{maximumFractionDigits:d});
 const range=(key,label,min,max,step,unit)=>`<div class="control"><label for="${key}">${label}<output id="out-${key}" for="${key}"></output></label><input id="${key}" data-key="${key}" type="range" min="${min}" max="${max}" step="${step}" value="${state[key]}"><div class="scale"><span>${fmt(min)} ${unit}</span><span>${fmt(max)} ${unit}</span></div></div>`;
 const metric=(label,value,unit)=>`<div class="metric"><small>${label}</small><strong>${fmt(value)} <span>${unit}</span></strong></div>`;
 const svg=(body)=>`<svg viewBox="0 0 680 340" role="img" aria-label="${tabs[active].title}"><defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#d38c37"/></marker><linearGradient id="water" x2="0" y2="1"><stop stop-color="#b9eeeb"/><stop offset="1" stop-color="#4db5b5"/></linearGradient></defs>${body}</svg>`;
+// Definitions stay outside the diagram so they remain readable at every parameter value.
+const lessons = [
+ [
+  ['Gaya (F)', 'Dorongan atau tarikan pada benda. Dalam simulasi ini, gaya dipakai untuk menekan piston.', 'Contoh: tangan mendorong tuas dongkrak. Satuannya newton (N).'],
+  ['Luas piston (A)', 'Ukuran permukaan piston yang bersentuhan dengan cairan. Bukan diameter atau panjang piston.', 'Piston yang lebih lebar mempunyai luas lebih besar. Di sini luas memakai cm².'],
+  ['Tekanan (P)', 'Besar gaya yang bekerja pada setiap satuan luas. Gaya yang sama pada permukaan lebih kecil menghasilkan tekanan lebih besar.', 'P = F ÷ A. Tekanan dinyatakan dalam pascal (Pa) atau kilopascal (kPa).'],
+  ['Hukum Pascal', 'Tambahan tekanan pada cairan tertutup diteruskan sama besar ke segala arah.', 'Piston keluar yang lebih luas menghasilkan gaya lebih besar, tetapi jarak geraknya lebih pendek.']
+ ],
+ [
+  ['Bejana berhubungan', 'Dua atau lebih wadah yang tersambung sehingga cairan dapat berpindah di antaranya.', 'Contoh: dua tangki air yang dihubungkan pipa di bagian bawah.'],
+  ['Beda tekanan', 'Selisih tekanan antara dua tempat. Selisih ini dapat mendorong cairan untuk mengalir.', 'Dalam contoh ini, kolom air lebih tinggi memberi tekanan lebih besar di dasar.'],
+  ['Setimbang', 'Keadaan ketika tidak ada aliran bersih dari satu wadah ke wadah lain.', 'Untuk cairan sejenis dan kedua wadah terbuka, permukaan akhirnya sama tinggi.']
+ ],
+ [
+  ['Kompresibilitas', 'Kemudahan suatu bahan mengecil volumenya saat ditekan.', 'Udara mudah dimampatkan; oli hanya sedikit mengecil pada tekanan yang sama.'],
+  ['Volume', 'Banyaknya ruang yang ditempati zat. Volume mengecil berarti zat menempati ruang yang lebih sedikit.', 'Awal masing-masing suntikan adalah 1 liter = 1.000 mL.'],
+  ['Tekanan tambahan', 'Kenaikan tekanan dari keadaan awal. Ini berbeda dari tekanan total atau absolut.', 'Awalnya gas sudah bertekanan 101,325 kPa absolut. Tambahan 0 bukan berarti tidak ada tekanan.'],
+  ['Tekanan absolut', 'Tekanan yang diukur dari acuan 0 pada vakum sempurna, yaitu keadaan ideal tanpa materi.', 'Hukum Boyle memakai tekanan absolut: tekanan gas naik, volume turun jika suhu tetap.']
+ ],
+ [
+  ['Tekanan hidrostatis', 'Tekanan akibat berat cairan yang diam. Semakin dalam suatu titik, semakin banyak cairan di atasnya.', 'Itulah sebabnya tekanan pada telinga terasa lebih besar saat menyelam lebih dalam.'],
+  ['Kedalaman (h)', 'Jarak vertikal dari permukaan cairan ke titik pengukuran.', 'Kedalaman 2 m memberi tambahan tekanan dua kali kedalaman 1 m pada cairan yang sama.'],
+  ['Massa jenis (ρ)', 'Massa zat dalam setiap satuan volume. Semakin besar massa jenis, semakin berat cairan untuk volume yang sama.', 'Air dalam model ini: 1.000 kg/m³. Oli: 850 kg/m³.'],
+  ['Tekanan di permukaan', 'Tekanan yang diberikan dari atas cairan, misalnya oleh udara bertekanan dalam tangki tertutup.', 'Slider menunjukkan tambahan di atas atmosfer. Nilai ini ditambahkan ke tekanan akibat berat cairan.']
+ ],
+ [
+  ['Tekanan atmosfer', 'Tekanan dari udara di sekitar kita akibat berat lapisan atmosfer. Udara tetap menekan walaupun tidak terlihat.', 'Dalam contoh standar dipakai 101,325 kPa. Di tempat nyata nilainya berubah menurut ketinggian dan cuaca.'],
+  ['Tekanan gauge', 'Selisih tekanan di dalam sistem terhadap tekanan udara luar. Banyak alat ukur ban memakai acuan ini.', 'Gauge 0: sama dengan udara luar. Gauge +100 kPa: 100 kPa lebih tinggi daripada udara luar.'],
+  ['Tekanan absolut', 'Tekanan yang diukur mulai dari vakum sempurna sebagai titik nol. Ini menunjukkan tekanan total dalam sistem.', 'Absolut = gauge + atmosfer. Jika gauge 100 kPa dan atmosfer 101,325 kPa, absolutnya 201,325 kPa.'],
+  ['Vakum & gauge negatif', 'Vakum parsial berarti tekanannya lebih rendah daripada udara luar. Vakum sempurna adalah acuan ideal 0 kPa absolut.', 'Gauge −50 kPa bukan tekanan absolut negatif: dengan atmosfer 101,325 kPa, absolutnya masih 51,325 kPa.']
+ ]
+];
+function lessonHTML(i){return `<section class="lesson" aria-labelledby="lesson-title"><p class="eyebrow">BEKAL MEMAHAMI SIMULASI</p><h3 id="lesson-title">Pahami dulu istilahnya</h3><p class="pressure-basics"><b>Apa itu tekanan?</b> Tekanan adalah besar gaya pada setiap satuan luas. Bayangkan telapak tangan dan ujung jari menekan spons dengan gaya yang sama: ujung jari memberi tekanan lebih besar karena luas sentuhnya lebih kecil.</p><dl class="term-grid">${lessons[i].map(([term,meaning,example])=>`<div><dt>${term}</dt><dd>${meaning}<p class="term-example">${example}</p></dd></div>`).join('')}</dl><p class="unit-note"><b>Membaca satuan:</b> 1 Pa = 1 N/m². 1 kPa = 1.000 Pa. 1 bar = 100 kPa. Huruf P berarti tekanan; F berarti gaya; A berarti luas.</p>${i===4?'<p class="remember"><b>Bedanya ada pada titik nol:</b> gauge memakai tekanan udara luar sebagai nol; absolut memakai vakum sempurna sebagai nol. Gauge 0 masih memiliki tekanan absolut sebesar tekanan atmosfer.</p>':''}</section>`;}
 function render(){
  cancelAnimationFrame(frame);running=false;progress=0;
  document.querySelector('#tabs').innerHTML=tabs.map((t,i)=>`<button aria-selected="${i===active}" data-tab="${i}"><span>0${i+1}</span>${t.name}</button>`).join('');
@@ -22,7 +55,7 @@ function render(){
  if(active===2){controls=range('p','Tekanan tambahan',0,10000,0.025,'kPa');formula='<b>ΔV / V₀ ≈ ΔP / K</b>Oli: K = 1,725 GPa (pendekatan).<br>Gas isotermal: P₁V₁ = P₂V₂.<br>V₀ = 1 liter, P awal = 101,325 kPa absolut.';}
  if(active===3){controls='<div class="control"><label for="fluid">Jenis cairan</label><select id="fluid"><option value="1000">Air · 1.000 kg/m³</option><option value="850">Oli · 850 kg/m³</option><option value="1025">Air laut · 1.025 kg/m³</option></select></div>'+range('h','Kedalaman pengukuran',0,10,0.1,'m')+range('surface','Tekanan tambahan permukaan',0,200,1,'kPa');formula='<b>P gauge = P permukaan + ρgh</b>Tekanan bertambah dengan kedalaman. Pada kedalaman yang sama, tekanan sama ke segala arah. P absolut = P gauge + 101,325 kPa.';}
  if(active===4){controls=range('atm','Tekanan atmosfer',80,110,0.025,'kPa')+range('gauge','Tekanan gauge',-80,1000,1,'kPa');formula='<b>P absolut = P gauge + P atmosfer</b>Gauge dapat bernilai negatif (vakum parsial). Tekanan absolut tidak negatif. 1 kgf/cm² = 98,0665 kPa; kg adalah satuan massa, bukan gaya.';}
- lab.innerHTML=`<div class="lab-top"><div><h2>${tabs[active].title}</h2><p>${tabs[active].desc}</p></div><button class="reset" id="reset">↺ Reset</button></div><div class="experiment"><div class="scene"><div class="scene-head"><span>AREA EKSPERIMEN / 0${active+1}</span><span class="live">INTERAKTIF</span></div><div class="howto" id="howto"></div><div class="presets" id="presets"></div><div class="drawing" id="drawing"></div><div class="results" id="results" aria-live="polite"></div><div class="scene-caption" id="caption"></div></div><aside class="controls"><h3>PARAMETER EKSPERIMEN</h3>${controls}${active<2?'<button class="primary" id="play">▶ Jalankan simulasi</button>':''}<details class="formula"><summary>Lihat rumus & asumsi</summary>${formula}</details></aside></div>`;
+ lab.innerHTML=`<div class="lab-top"><div><h2>${tabs[active].title}</h2><p>${tabs[active].desc}</p></div><button class="reset" id="reset">↺ Reset</button></div>${lessonHTML(active)}<div class="experiment"><div class="scene"><div class="scene-head"><span>AREA EKSPERIMEN / 0${active+1}</span><span class="live">INTERAKTIF</span></div><div class="howto" id="howto"></div><div class="presets" id="presets"></div><div class="drawing" id="drawing"></div><div class="results" id="results" aria-live="polite"></div><div class="scene-caption" id="caption"></div><div class="reading-lesson" id="reading-lesson"></div></div><aside class="controls"><h3>PARAMETER EKSPERIMEN</h3>${controls}${active<2?'<button class="primary" id="play">▶ Jalankan simulasi</button>':''}<details class="formula"><summary>Lihat rumus & asumsi</summary>${formula}</details></aside></div>`;
  lab.querySelectorAll('input').forEach(el=>el.addEventListener('input',()=>{state[el.dataset.key]=Number(el.value);progress=0;running=false;cancelAnimationFrame(frame);const play=document.querySelector('#play');if(play)play.textContent='▶ Jalankan simulasi';update();}));
  document.querySelector('#reset').onclick=()=>{state={...defaults[active]};render();};
  if(active===3)document.querySelector('#fluid').onchange=e=>{state.rho=Number(e.target.value);update();};
@@ -63,6 +96,15 @@ function update(){
  if(active===4){const abs=Physics.absolute(state.gauge,state.atm),scale=560/1110;body=`<text x="50" y="35">UDARA LUAR (ATMOSFER)</text><text x="630" y="35" text-anchor="end">${fmt(state.atm,3)} kPa</text><rect x="50" y="52" width="560" height="24" rx="5" fill="#e5eceb"/><rect x="50" y="52" width="${state.atm*scale}" height="24" rx="5" fill="#b1c87a"/><text x="50" y="125">TEKANAN TOTAL (ABSOLUT)</text><text x="630" y="125" text-anchor="end">${fmt(abs,3)} kPa</text><rect x="50" y="142" width="560" height="24" rx="5" fill="#e5eceb"/><rect x="50" y="142" width="${abs*scale}" height="24" rx="5" fill="#087d7d"/><text x="50" y="205" class="small">Kedua batang mulai dari 0 kPa absolut (vakum sempurna).</text><rect x="45" y="230" width="590" height="75" rx="10" fill="#edf5f3"/><text x="340" y="260" text-anchor="middle">${fmt(state.atm,3)} kPa + (${fmt(state.gauge)} kPa)</text><text x="340" y="287" text-anchor="middle">= ${fmt(abs,3)} kPa tekanan total</text>`;results=metric('Angka di alat (gauge)',state.gauge,'kPa')+metric('Udara luar',state.atm,'kPa')+metric('Total (absolut)',abs,'kPa');caption=state.gauge<0?`Contoh penyedot: tekanan di dalam lebih rendah daripada udara luar. Alat membaca ${fmt(state.gauge)} kPa. Tekanan totalnya tetap ${fmt(abs,3)} kPa, bukan tekanan negatif.`:state.gauge===0?`Wadah terbuka: di dalam dan di luar tekanannya sama. Alat membaca 0, tetapi masih ada tekanan udara ${fmt(state.atm,3)} kPa.`:`Contoh ban: alat membaca ${fmt(state.gauge)} kPa di atas udara luar. Tambahkan tekanan udara ${fmt(state.atm,3)} kPa untuk mendapat tekanan total ${fmt(abs,3)} kPa.`;}
 
  document.querySelector('#drawing').innerHTML=svg(body);document.querySelector('#drawing').classList.toggle('animate',running);document.querySelector('#results').innerHTML=results;document.querySelector('#caption').textContent=caption;
+ const reading=document.querySelector('#reading-lesson');
+ if(active===4){const total=Physics.absolute(state.gauge,state.atm);reading.innerHTML=`<h3>Mengapa hasilnya ${fmt(total,3)} kPa absolut?</h3><ol><li>Udara luar memberi acuan <b>${fmt(state.atm,3)} kPa absolut</b>.</li><li>${state.gauge<0?`Tekanan di dalam <b>${fmt(Math.abs(state.gauge))} kPa lebih rendah</b> dari udara luar. Jadi nilainya dikurangi.`:state.gauge===0?'Gauge 0 berarti tekanan di dalam sama dengan tekanan udara luar. Tidak ada tambahan atau pengurangan.':`Gauge menunjukkan tekanan di dalam <b>${fmt(state.gauge)} kPa lebih tinggi</b> dari udara luar. Jadi nilainya ditambahkan.`}</li><li>Tekanan absolut = ${fmt(state.atm,3)} + (${fmt(state.gauge)}) = <b>${fmt(total,3)} kPa</b>.</li></ol><p><b>Coba jelaskan:</b> pilih “Wadah terbuka”. Mengapa gauge 0, tetapi absolutnya tetap ada? Karena udara atmosfer masih menekan.</p>`;}
+ else {const notes=[
+  'Gaya dan tekanan berbeda. Gaya adalah dorongan pada piston; tekanan adalah dorongan per luas permukaan. Piston besar menghasilkan gaya lebih besar dari tekanan yang sama.',
+  'Bentuk wadah tidak menentukan tinggi akhir. Untuk cairan sejenis dalam dua wadah terbuka yang tersambung, air berpindah sampai permukaannya sama tinggi.',
+  '“Cairan tidak dapat dimampatkan” adalah pendekatan. Oli nyata tetap sedikit mengecil. Dalam model ini gas lebih mudah mengecil, sehingga perubahan volumenya lebih jelas.',
+  'Tekanan gauge di titik ukur = tekanan tambahan dari atas + tekanan akibat berat cairan (ρgh). Tekanan absolutnya masih ditambah tekanan udara luar 101,325 kPa.'
+ ];reading.innerHTML=`<h3>Ingat perbedaannya</h3><p>${notes[active]}</p>`;}
+
 }
 document.querySelector('#tabs').addEventListener('click',e=>{const btn=e.target.closest('[data-tab]');if(!btn)return;active=Number(btn.dataset.tab);state={...defaults[active]};render();});
 render();
