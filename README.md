@@ -36,7 +36,7 @@ Slider dapat digunakan dengan keyboard. Tombol reset mengembalikan eksperimen ke
 Node.js 20+:
 
 ```sh
-node --test tests/physics.test.cjs
+node --test tests/*.test.cjs
 node --check app.js
 node --check physics.js
 node --check examples.js
@@ -57,3 +57,7 @@ Empat kartu interaktif di bawah laboratorium utama:
 - Pilih tangki yang lebih tinggi, lalu buka keran sampai permukaan sama tinggi.
 
 Label utama memakai posisi tetap, terpisah dari komponen bergerak. Penjelasan menggunakan langkah mencoba dan pengamatan sederhana; rumus teknis dapat dibuka bila diperlukan. Contoh siap pilih tersedia untuk setiap eksperimen (termasuk wadah terbuka, ban sepeda, dan penyedot). Animasi menghormati preferensi reduced motion.
+
+### Animasi tekanan ke semua arah
+
+Kartu kedua menampilkan piston mendekati air, kenaikan tambahan tekanan bersamaan, lalu tekanan ditahan. Empat angka di luar gambar selalu sama. Tombol Putar, Jeda/Lanjutkan, dan Ulangi mengontrol animasi 6,5 detik; slider mengatur target 0–100 kPa dan mengembalikan animasi ke awal. Gerak piston sebelum kontak bersifat ilustratif, tanpa memodelkan kompresi cairan. Preferensi reduced motion mengubah putar menjadi langkah manual.
