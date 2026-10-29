@@ -26,3 +26,14 @@ test('reduced motion advances by button and never auto-animates',()=>{
  const a=setup(true);for(let i=0;i<5;i++)a.node('#pressure-play').onclick();
  assert.equal(a.read('pressureProgress'),1);assert.equal(a.read('pressureRunning'),false);
 });
+
+test('four pressure arrows share one origin and point outward with equal length',()=>{
+ const a=setup();a.node('#pressure-play').onclick();a.tick(0);a.tick(6500);
+ const group=a.node('#pressure-scene').innerHTML.match(/<g class="[^"]*">(.*?)<\/g>/)[1];
+ const arrows=[...group.matchAll(/d="M([\d.]+) ([\d.]+)L([\d.]+) ([\d.]+)/g)].map(m=>m.slice(1).map(Number));
+ assert.equal(arrows.length,4);
+ const vectors=arrows.map(([x,y,ex,ey])=>{assert.equal(x,200);assert.equal(y,200);return [ex-x,ey-y];});
+ const lengths=vectors.map(([x,y])=>Math.hypot(x,y));assert.equal(new Set(lengths).size,1);
+ assert.ok(vectors.some(([x,y])=>x===0&&y<0));assert.ok(vectors.some(([x,y])=>x===0&&y>0));
+ assert.ok(vectors.some(([x,y])=>x<0&&y===0));assert.ok(vectors.some(([x,y])=>x>0&&y===0));
+});
