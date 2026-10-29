@@ -39,6 +39,7 @@ Node.js 20+:
 node --test tests/physics.test.cjs
 node --check app.js
 node --check physics.js
+node --check examples.js
 ```
 
 Workflow GitHub Actions menjalankan pemeriksaan tersebut setiap push dan pull request.
@@ -46,3 +47,13 @@ Workflow GitHub Actions menjalankan pemeriksaan tersebut setiap push dan pull re
 ## GitHub Pages (opsional)
 
 Di Settings → Pages, pilih **Deploy from a branch**, branch **main**, folder **/ (root)**, lalu Save. Setelah GitHub menyelesaikan penerbitan, alamatnya: `https://creepz270x.github.io/hidraulika/`. URL tersebut baru aktif setelah Pages diaktifkan; commit kode saja tidak mengaktifkan hosting.
+
+## Percobaan singkat sifat fluida
+
+Empat kartu interaktif di bawah laboratorium utama:
+- Ganti gelas tinggi, kotak, dan bak lebar untuk melihat bentuk air berubah tanpa menambah air.
+- Geser tambahan tekanan untuk melihat panah tekanan membesar ke empat arah.
+- Tekan dua suntikan tertutup dan bandingkan sisa volume oli dan udara.
+- Pilih tangki yang lebih tinggi, lalu buka keran sampai permukaan sama tinggi.
+
+Label utama memakai posisi tetap, terpisah dari komponen bergerak. Penjelasan menggunakan langkah mencoba dan pengamatan sederhana; rumus teknis dapat dibuka bila diperlukan. Contoh siap pilih tersedia untuk setiap eksperimen (termasuk wadah terbuka, ban sepeda, dan penyedot). Animasi menghormati preferensi reduced motion.
